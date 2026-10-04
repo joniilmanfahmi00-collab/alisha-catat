@@ -1,174 +1,97 @@
-# Alisha Catat
+# Alisha Catat: a local Gemma order assistant for a small print shop
 
-Alisha Catat is a lightweight order and sales management application designed for a printing shop. It helps staff record customer orders quickly, review the details before saving, export receipts, and monitor daily, weekly, and monthly sales performance.
+A small, local-first order-taking app built for **Alisha Cetak**, a print shop in Cisontrol, Rancah (Indonesia). The owner types, speaks or fills in an order. A local **Gemma** model turns the free text into structured data, plain code prices it from the shop's own price list, and the app produces receipts and sales reports.
 
-The project is built with Vue 3, Vite, TypeScript, and a local SQLite database. It also includes AI-assisted order parsing through Ollama, making it easier to convert handwritten or spoken order notes into structured entries.
+> Built for the [Hacktoberfest Weekend Challenge: Build for a Friend](https://dev.to/challenges/hacktoberfest-weekend-2026-10-01) (DEV x MLH).
+> DEV post: TODO &nbsp;|&nbsp; Demo video: TODO
 
-## Features
+## Screenshots
 
-- Order entry from typed text or microphone input
-- AI-assisted parsing of printing orders using Ollama
-- Manual review and editing before saving
-- Structured customer, item, quantity, size, and down-payment data
-- Automatic receipt numbering and order lookup
-- PDF export for invoices and reports
-- Excel export for reporting
-- Daily, weekly, and monthly sales summaries
-- WhatsApp-friendly sharing flow for invoices
-- Product catalog with price ranges for easier manual entry
+TODO: add screenshots made with **sample data only** (no real customer names).
+
+## What it does
+
+- **Order entry**: type or dictate an order, for example `Pak Dedi pesan spanduk 3x1 dua lembar, DP 100rb`, or use the manual form.
+- **Local AI parsing**: `gemma3:4b` (through [Ollama](https://ollama.com)) extracts customer, items, size, quantity and unit. The output is constrained by a JSON schema.
+- **Pricing from the shop's price list**: per unit, per m², per pack, and price ranges that the owner confirms by hand. Totals are computed in code with Decimal.js, never by the model.
+- **Confirmation card**: the owner reviews and edits everything before saving. Missing or suspicious fields are highlighted.
+- **Receipts**: PDF, Excel, or an image to share on WhatsApp.
+- **Reports**: daily, weekly and monthly summaries with a chart, exportable to PDF and Excel.
+- **Offline-friendly**: typing an order and parsing it need no internet connection.
+
+## How it works
+
+```text
+browser (Vue) --> /api/parse (h3) --> Ollama --> Gemma 3 4B  (JSON, schema-constrained)
+      |                 |
+      |                 +-- guard code: normalise names and sizes, parse the DP amount with a regex,
+      |                     drop invented customer names, flag items the model missed
+      v
+confirmation card --> /api/orders --> SQLite (Drizzle) --> receipts, reports
+```
+
+The model only extracts text. Everything involving money is deterministic code.
 
 ## Tech stack
 
-- Solid-Vue JS 
-- TypeScript
-- Tailwind CSS
-- Drizzle ORM
-- better-sqlite3
-- PDF and spreadsheet generation libraries
-- Ollama for local AI parsing
+- [Solid-Vue JS](https://docs.solid-vue.tech) (Vue 3 + Vite, file-based API routes on h3)
+- Ollama + `gemma3:4b`
+- SQLite + Drizzle ORM (`better-sqlite3`)
+- Decimal.js, Tailwind CSS v4, Tabler icons, Chartist, pdf-lib, ExcelJS
 
-## Requirements
+## Run it locally
 
-Before running the project, ensure you have the following installed:
+Requirements: Node.js 20.19+ (22.12+ recommended) and Ollama.
 
-- Node.js 20 or newer
-- npm
-- Ollama (for AI order parsing)
-
-The application will fall back to manual entry if the AI service is unavailable, but the parsing flow is designed to work best with Ollama running locally.
-
-## Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   cd alisha-cetak
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Start Ollama locally if you want AI parsing enabled:
-
-   ```bash
-   ollama serve
-   ```
-
-   If needed, pull the default model used by the application:
-
-   ```bash
-   ollama pull gemma3:4b
-   ```
-
-## Environment configuration
-
-The application uses the following environment variables if you need to override the defaults:
-
-```bash
-OLLAMA_MODEL=gemma3:4b
-OLLAMA_URL=http://localhost:11434
-```
-
-These values are optional, as the project already provides sensible defaults.
-
-## Running the application
-
-Run the development server:
-
-```bash
+```powershell
+ollama pull gemma3:4b
+npm install
 npm run dev
 ```
 
-Then open the app in your browser, typically at:
+Open <http://localhost:5173>. The first request after starting can take 20-40 seconds while the model loads. The home page warms it up automatically.
 
-```text
-http://localhost:5173
-```
+| Variable | Default | Purpose |
+|---|---|---|
+| `OLLAMA_URL` | `http://localhost:11434` | Where Ollama is running |
+| `OLLAMA_MODEL` | `gemma3:4b` | Which model to use |
 
-## Production build
+The SQLite file is created on first run (see `src/server/db/client.ts`) and is git-ignored. **Do not commit real orders.**
 
-To create a production build:
+## Measured performance (informal)
 
-```bash
-npm run build
-```
+Five invented sample orders on an **AMD A8-9600, 8 GB RAM, no GPU**:
 
-To preview the production build locally:
+| Setup | Correct | Time per order |
+|---|---|---|
+| gemma3:4b, long prompt | 5/5 | ~37 s |
+| gemma3:4b, short prompt | 5/5 | ~23 s |
+| gemma3:1b, short prompt | 4/5 (the miss was flagged by a warning) | ~11 s |
 
-```bash
-npm run preview
-```
+On a CPU, reading the prompt cost more than writing the answer, so a shorter prompt plus guard code was the biggest win. This is not a rigorous benchmark.
 
-## Available scripts
+## Privacy
 
-```bash
-npm run dev
-npm run build
-npm run preview
-npm run deploy
-```
+No telemetry. Orders and customer names stay in the local SQLite file. Voice dictation uses the **browser's** speech recognition, which may be processed in the cloud by default. Parsing with Gemma is local.
 
-## How the app works
+## Known limitations
 
-### Home screen
+- Voice input needs a microphone and a secure context (HTTPS or `localhost`). Opening the app from a phone over a plain `http://192.168.x.x` address blocks the mic. Phone keyboard dictation still works.
+- 20-40 seconds per order on low-end hardware. Faster machines will do better.
+- Tested on a handful of orders so far.
+- Some price-list lines are ambiguous (for example "per m"). They are modelled as the owner confirmed.
 
-The home page allows staff to paste or dictate an order message. The system attempts to convert the text into structured order data, including:
+## Challenge notes
 
-- customer name
-- item type
-- size
-- quantity
-- unit
-- down payment
+- **Window**: the project was started and completed during the challenge window (2 Oct 2026 02:00 UTC to 5 Oct 2026 06:59 UTC).
+- **Prior work credited**: [Solid-Vue JS](https://github.com/solid-vue/solid-vue) and its CLI add-ons are the author's earlier framework, used here as a tool. The order assistant itself (AI parsing, pricing, receipts, reports) was built during the window.
+- **AI assistance**: built with help from Claude and GitHub Copilot in VS Code. TODO: confirm the exact tools used.
+- **Commits after the deadline** (after 5 Oct 2026 06:59 UTC): TODO list them here, or write "none".
 
-The generated draft can then be reviewed and edited before saving.
+## Acknowledgements
 
-### Nota screen
+Thanks to A. Asep, owner of Alisha Cetak, for trying it in the shop and for his permission to be named.
 
-The Nota page allows users to look up an order by its reference number, download a PDF receipt, export to Excel, or prepare a WhatsApp message with the receipt image.
+## License
 
-### Laporan screen
-
-The Laporan page provides a summary of sales by day, week, or month and includes:
-
-- total sales
-- incoming down payments
-- outstanding balances
-- transaction count
-- export to PDF and Excel
-
-## Project structure
-
-```text
-src/
-  components/
-  layouts/
-  lib/
-  pages/
-  server/
-    api/
-    db/
-    utils/
-  styles/
-  App.vue
-  main.ts
-public/
-index.html
-package.json
-vite.config.ts
-tsconfig.json
-```
-
-## Notes
-
-- The system stores financial amounts as integer rupiah values.
-- The application is intended for local or small-scale operational use, rather than a multi-user cloud deployment out of the box.
-- AI parsing is a convenience layer and should still be checked before finalising an order.
-
-## Licence
-
-No explicit licence file has been included in this repository, so usage and distribution should be confirmed with the project owner before publishing or sharing the code externally.
+TODO: choose a license (for example MIT) and add a `LICENSE` file.
