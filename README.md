@@ -3,7 +3,8 @@
 A small, local-first order-taking app built for **Alisha Cetak**, a print shop in Cisontrol, Rancah (Indonesia). The owner types, speaks or fills in an order. A local **Gemma** model turns the free text into structured data, plain code prices it from the shop's own price list, and the app produces receipts and sales reports.
 
 > Built for the [Hacktoberfest Weekend Challenge: Build for a Friend](https://dev.to/challenges/hacktoberfest-weekend-2026-10-01) (DEV x MLH).
-> DEV post: TODO &nbsp;|&nbsp; Demo video: TODO
+> DEV post: [Alisha Catat: a local Gemma order assistant for a small print shop in Ciamis, Indonesia](https://dev.to/joni_ilman12/alisha-catat-a-local-gemma-order-assistant-for-a-small-print-shop-in-ciamis-indonesia-1cg8)
+> Demo video: [DEMO](https://youtu.be/5HfD7Sn_3tU)
 
 ## Screenshots
 
