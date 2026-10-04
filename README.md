@@ -7,7 +7,15 @@ A small, local-first order-taking app built for **Alisha Cetak**, a print shop i
 
 ## Screenshots
 
-TODO: add screenshots made with **sample data only** (no real customer names).
+<table>
+  <tr>
+    <td><img width="376" height="669" alt="brave_XdVAX5Hizv" src="https://github.com/user-attachments/assets/591574cf-2025-48cd-92c7-39610603a8e8" /></td>
+    <td><img width="375" height="667" alt="brave_TgSRCOOykD" src="https://github.com/user-attachments/assets/23597838-3ccb-420c-a31c-2615c993842e" /></td>
+    <td><img width="375" height="667" alt="brave_hEydZyixao" src="https://github.com/user-attachments/assets/95958486-fc41-4df5-bd42-8a4ab36098d3" /></td>
+    <td><img width="375" height="667" alt="brave_z5DUQnjVdN" src="https://github.com/user-attachments/assets/72dc525e-7578-4977-a54d-ed20076e480e" /></td>
+    <td><img width="375" height="667" alt="brave_OtdunzwdjD" src="https://github.com/user-attachments/assets/ad8790b9-767a-47d6-abae-55ccd7c62058" /></td>
+  </tr>
+</table>
 
 ## What it does
 
@@ -90,8 +98,8 @@ No telemetry. Orders and customer names stay in the local SQLite file. Voice dic
 
 ## Acknowledgements
 
-Thanks to A. Asep, owner of Alisha Cetak, for trying it in the shop and for his permission to be named.
+Thanks to A Asep, owner of Alisha Cetak, for trying it in the shop and for his permission to be named.
 
 ## License
 
-TODO: choose a license (for example MIT) and add a `LICENSE` file.
+MIT License
