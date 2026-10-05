@@ -54,8 +54,8 @@ Requirements: Node.js 20.19+ (22.12+ recommended) and Ollama.
 
 ```powershell
 ollama pull gemma3:4b
-npm install
-npm run dev
+bun install
+bun run dev            #You can run on your mobile by installing mkcert and add flag --host on your terminal
 ```
 
 Open <http://localhost:5173>. The first request after starting can take 20-40 seconds while the model loads. The home page warms it up automatically.
